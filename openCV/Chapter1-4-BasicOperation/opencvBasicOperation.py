@@ -293,10 +293,74 @@ def gradient():
     res = np.hstack((img, sobelxy, scharrxy, laplacian))
     cv_show('res', res)
 
-def cv_show(name,img):
+def canny():
+    '''
+    Canny边缘检测
+    1) 使用高斯滤波器，以平滑图像，滤除噪声。
+
+    2) 计算图像中每个像素点的梯度强度和方向。
+
+    3) 应用非极大值（Non-Maximum Suppression）抑制，以消除边缘检测带来的杂散响应。
+
+    4) 应用双阈值（Double-Threshold）检测来确定真实的和潜在的边缘。
+
+    5) 通过抑制孤立的弱边缘最终完成边缘检测。
+    '''
+    img = cv2.imread("lena.jpg", cv2.IMREAD_GRAYSCALE)
+    #双阈值设置[50，150] 对比[80,100]
+    #可以看出区间小，会丢失一些边缘
+    v1 = cv2.Canny(img, 50, 150)
+    v2 = cv2.Canny(img, 80, 100)
+
+    res = np.hstack((v1, v2))
+    cv_show('res', res)
+
+def findContours():
+    '''
+    cv2.findContours(img,mode,method)
+    mode:轮廓检索模式
+        RETR_EXTERNAL ：只检索最外面的轮廓；
+        RETR_LIST：检索所有的轮廓，并将其保存到一条链表当中；
+        RETR_CCOMP：检索所有的轮廓，并将他们组织为两层：顶层是各部分的外部边界，第二层是空洞的边界;
+        RETR_TREE：检索所有的轮廓，并重构嵌套轮廓的整个层次;
+    method:轮廓逼近方法
+        CHAIN_APPROX_NONE：以Freeman链码的方式输出轮廓，所有其他方法输出多边形（顶点的序列）。
+        CHAIN_APPROX_SIMPLE:压缩水平的、垂直的和斜的部分，也就是，函数只保留他们的终点部分。
+    '''
+    img = cv2.imread('contours.png')
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
+    contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+    #绘制轮廓
+    #传入绘制图像，轮廓，轮廓索引，颜色模式，线条厚度
+    # 注意需要copy,要不原图会变。。。
+    draw_img = img.copy()
+    # contours：轮廓
+    # contourIdx：画第几个轮廓，负数则画全部
+    res1 = cv2.drawContours(draw_img, contours, -1, (0, 0, 255), 2)
+
+    draw_img = img.copy()
+    res2 = cv2.drawContours(draw_img, contours, 1, (0, 0, 255), 2)
+
+    titles = ['Original Image', 'thresh', 'drawContours-1', 'drawContours1']
+    images = [img, thresh, res1, res2]
+
+    for i in range(4):
+        plt.subplot(2, 2, i + 1), plt.imshow(images[i], 'gray')
+        plt.title(titles[i])
+        plt.xticks([]), plt.yticks([])
+    plt.show()
+
+def findContours1():
+    """
+    todo:轮廓近似
+    """
+
+
+def cv_show(name, img):
     cv2.imshow(name,img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    gradient()
+    findContours()
