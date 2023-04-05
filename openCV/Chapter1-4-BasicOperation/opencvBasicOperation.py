@@ -318,6 +318,7 @@ def canny():
 def findContours():
     '''
     cv2.findContours(img,mode,method)
+
     mode:轮廓检索模式
         RETR_EXTERNAL ：只检索最外面的轮廓；
         RETR_LIST：检索所有的轮廓，并将其保存到一条链表当中；
